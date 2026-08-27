@@ -15,6 +15,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends curl \
 COPY --from=build /app/target/sovereignty-1.0.0.jar app.jar
 USER app
 EXPOSE 8080
+# respect the container's memory limit instead of the host's
+ENV JAVA_TOOL_OPTIONS="-XX:MaxRAMPercentage=75.0"
 HEALTHCHECK --interval=15s --timeout=5s --start-period=40s --retries=5 \
   CMD curl -sf http://localhost:8080/actuator/health || exit 1
 ENTRYPOINT ["java", "-jar", "app.jar"]
