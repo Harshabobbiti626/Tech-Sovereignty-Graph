@@ -4,8 +4,12 @@ import '@xyflow/react/dist/style.css'
 import IdentityNode from './nodes/IdentityNode'
 import GroupNode from './nodes/GroupNode'
 import ResourceNode from './nodes/ResourceNode'
+import LevelEdge, { levelChipClass } from './edges/LevelEdge'
 
 const nodeTypes = { identity: IdentityNode, group: GroupNode, resource: ResourceNode }
+const edgeTypes = { access: LevelEdge }
+
+const LEVELS = ['ADMIN', 'WRITE', 'READ']
 
 const EDGE_BASE = {
   MEMBER_OF: { stroke: '#64748b' },
@@ -43,17 +47,14 @@ export default function GraphCanvas({ data, highlight, cascadeIds, selectedId, o
       const base = EDGE_BASE[edge.type] ?? EDGE_BASE.MEMBER_OF
       return {
         id: edge.id,
+        type: edge.type === 'ACCESS' ? 'access' : undefined,
         source: edge.source,
         target: edge.target,
-        label: edge.type === 'ACCESS' ? edge.props?.level : undefined,
+        data: { level: edge.props?.level, dim },
         animated: hot,
         style: hot
           ? { ...base, strokeWidth: 3 }
           : { ...base, strokeWidth: 1.2, opacity: dim ? 0.07 : 0.8 },
-        labelStyle: { fill: '#94a3b8', fontSize: 9 },
-        labelBgStyle: { fill: '#0f172a' },
-        labelBgPadding: [4, 2],
-        labelBgBorderRadius: 4,
         markerEnd: { type: MarkerType.ArrowClosed, color: hot ? base.stroke : '#334155' },
       }
     })
@@ -67,6 +68,7 @@ export default function GraphCanvas({ data, highlight, cascadeIds, selectedId, o
         nodes={nodes}
         edges={edges}
         nodeTypes={nodeTypes}
+        edgeTypes={edgeTypes}
         onNodeClick={(_, node) => onNodeClick(node.id)}
         colorMode="dark"
         fitView
@@ -83,7 +85,7 @@ export default function GraphCanvas({ data, highlight, cascadeIds, selectedId, o
         <MiniMap pannable zoomable bgColor="#0f172a" maskColor="rgba(15, 23, 42, 0.7)" />
       </ReactFlow>
 
-      <div className="pointer-events-none absolute bottom-3 left-3 flex items-center gap-3 rounded-lg bg-slate-900/80 px-3 py-1.5 ring-1 ring-slate-800">
+      <div className="pointer-events-none absolute bottom-3 left-3 flex flex-wrap items-center gap-x-3 gap-y-1 rounded-lg bg-slate-900/80 px-3 py-1.5 ring-1 ring-slate-800">
         {LEGEND.map(([label, color, dashed]) => (
           <span key={label} className="flex items-center gap-1.5 text-[10px] text-slate-400">
             <span
@@ -91,6 +93,15 @@ export default function GraphCanvas({ data, highlight, cascadeIds, selectedId, o
               style={{ borderColor: color, borderStyle: dashed ? 'dashed' : 'solid' }}
             />
             {label}
+          </span>
+        ))}
+        <span className="h-3 w-px bg-slate-700" />
+        {LEVELS.map((level) => (
+          <span
+            key={level}
+            className={`rounded-full px-1.5 py-px text-[10px] font-semibold ring-1 ${levelChipClass(level)}`}
+          >
+            {level}
           </span>
         ))}
       </div>
