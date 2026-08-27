@@ -32,13 +32,15 @@ public final class Cypher {
             ORDER BY %s, pathsAtRisk DESC
             """.formatted(SEVERITY);
 
+    /** A browser canvas can't draw unbounded graphs, so snapshots are capped. */
+    private static final int SNAPSHOT_LIMIT = 2000;
+
     /** Full picture for the canvas. Types are lowercased for stable API casing. */
     public static final String ALL_NODES =
-            "MATCH (n) RETURN n.id AS id, toLower(labels(n)[0]) AS type, properties(n) AS props";
-    public static final String ALL_EDGES = """
-            MATCH (a)-[r]->(b)
-            RETURN a.id AS source, b.id AS target, type(r) AS type, properties(r) AS props
-            """;
+            "MATCH (n) RETURN n.id AS id, toLower(labels(n)[0]) AS type, properties(n) AS props LIMIT " + SNAPSHOT_LIMIT;
+
+    public static final String ALL_EDGES = "MATCH (a)-[r]->(b) "
+            + "RETURN a.id AS source, b.id AS target, type(r) AS type, properties(r) AS props LIMIT " + SNAPSHOT_LIMIT;
 
     /** Drawer detail: the node itself plus one hop in each direction. */
     public static final String NODE_DETAIL =

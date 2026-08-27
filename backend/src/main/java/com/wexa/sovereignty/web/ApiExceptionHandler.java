@@ -1,6 +1,7 @@
 package com.wexa.sovereignty.web;
 
 import com.wexa.sovereignty.core.GraphExecutor;
+import jakarta.validation.ConstraintViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -36,6 +37,16 @@ public class ApiExceptionHandler {
             body.put("retryInMs", executor.breaker().retryInMillis());
         }
         return ResponseEntity.status(ex.getStatusCode()).body(body);
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<Map<String, Object>> invalidInput(ConstraintViolationException ex) {
+        String detail = ex.getConstraintViolations().stream()
+                .map(v -> v.getMessage())
+                .findFirst()
+                .orElse("invalid request parameter");
+        return ResponseEntity.badRequest()
+                .body(Map.of("status", 400, "error", detail));
     }
 
     @ExceptionHandler(Exception.class)

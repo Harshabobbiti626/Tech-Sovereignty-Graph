@@ -20,6 +20,7 @@ import org.neo4j.driver.Value;
 import org.neo4j.driver.types.Node;
 import org.neo4j.driver.types.Path;
 import org.neo4j.driver.types.Relationship;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -40,6 +41,7 @@ public class GraphService {
         this.executor = executor;
     }
 
+    @Cacheable("graph")
     public GraphPayload graph() {
         List<GraphNode> nodes = executor.read(Cypher.ALL_NODES, Map.of(), row -> new GraphNode(
                 row.get("id").asString(),
@@ -56,6 +58,7 @@ public class GraphService {
         return new GraphPayload(nodes, edges);
     }
 
+    @Cacheable("stats")
     public GraphStats stats() {
         return executor.read(Cypher.STATS, Map.of(), row -> new GraphStats(
                 row.get("identities").asLong(),

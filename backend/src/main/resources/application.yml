@@ -4,6 +4,25 @@ server:
 spring:
   application:
     name: tech-sovereignty
+  cache:
+    type: caffeine
+    cache-names: graph, stats
+    caffeine:
+      spec: expireAfterWrite=30s,maximumSize=32
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always
+  health:
+    neo4j:
+      # CognoDB is openCypher-compatible but doesn't ship Neo4j's dbms.components
+      # procedure, so Spring's stock indicator reports DOWN. /api/health is the real probe.
+      enabled: false
 
 cognodb:
   # defaults exist so the API still boots (and reports "unreachable") without a configured instance

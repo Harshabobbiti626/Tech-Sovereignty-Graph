@@ -123,6 +123,34 @@ npm run dev        # http://localhost:5173, proxies /api to :8080
 
 ![Simulate compromise](docs/screenshots/simulate-compromise.png)
 
+## Testing
+
+```bash
+cd backend
+./mvnw test
+```
+
+Four suites, 13 tests:
+
+- **`CircuitBreakerTest`** — pure unit tests: threshold, cooldown, probe-reopen semantics.
+- **`GraphServiceTest`** — Mockito unit tests of the path-mapping and toxicity logic (mocked driver records, no database).
+- **`AuditControllerTest`** — `@WebMvcTest` slice covering the HTTP layer: payload shape, input validation `400`s, and the `503`+`retryInMs` outage mapping.
+- **`Neo4jGraphQueriesTest`** — Testcontainers integration test: boots a throwaway Neo4j 5.26, runs the real seeder, then fires the real Cypher at it. No mocks on the data path.
+
+The container suite **self-skips automatically when no Docker daemon is reachable**, so `mvn test` stays green on machines and CI runners without Docker. One quirk worth knowing: Docker Desktop 29+ rejects older client API versions, so if your Docker needs a hint run the container suite as:
+
+```bash
+./mvnw test -Dtest=Neo4jGraphQueriesTest -Dapi.version=1.44 -DforkCount=0
+```
+
+## Operations & hardening
+
+- **Input validation** — path/query params are `@NotBlank`/`@Size`/`@Pattern` constrained; malformed input gets a clean `400`. The pattern deliberately accepts both emails *and* agent slugs like `production_ci_cd_bot` (a plain `@Email` would reject real identities in this domain).
+- **Response caching** — `/api/graph` and `/api/stats` are cached for 30s (Caffeine). Repeated canvas loads stop hitting the database; audit/impact stay uncached so interactive results are always live. Re-seeding takes up to 30s to appear.
+- **Snapshot bound** — the canvas snapshot queries carry a `LIMIT 2000`: a browser can't draw unbounded graphs, and the c0 free tier shouldn't shoulder the attempt.
+- **Actuator** — `/actuator/health` and `/actuator/metrics` are exposed next to the UI's own `/api/health` for ops tooling.
+- **OpenAPI** — interactive API docs auto-generated at `/swagger-ui.html` (springdoc).
+
 ## Resilience
 
 CognoDB free instances sleep and drop connections; the app treats that as a normal Tuesday:
@@ -147,8 +175,13 @@ backend/
     service/   orchestration + record mapping
     web/       thin controllers + global error handler
     model/     response records
-    seed/      scenario loader (profile "seed")
+    seed/      scenario dataset (GraphSeeder) + CLI runner (seed profile)
     config/    driver + CORS
+  src/test/java/
+    core/      circuit breaker unit tests
+    service/   mapping logic unit tests
+    web/       controller slice tests
+    seed/      Testcontainers integration tests (real Neo4j)
 frontend/
   src/
     api/       fetch client + endpoint functions
