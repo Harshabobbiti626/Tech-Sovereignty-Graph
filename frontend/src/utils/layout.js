@@ -1,26 +1,37 @@
-import dagre from '@dagrejs/dagre'
-
-const SIZES = {
-  identity: { width: 256, height: 76 },
-  group: { width: 224, height: 60 },
-  resource: { width: 256, height: 76 },
+const SIZE = {
+  identity: { width: 256, height: 76, row: 94 },
+  group: { width: 224, height: 60, row: 94 },
+  resource: { width: 256, height: 76, row: 94 },
 }
 
-const sizeOf = (node) => SIZES[node.type] ?? SIZES.group
+const COLUMN_X = { identity: 0, group: 400, resource: 800 }
 
-/** Left-to-right layered layout: identities feed groups, groups feed resources. */
-export function layoutGraph(nodes, edges) {
-  const g = new dagre.graphlib.Graph()
-  g.setGraph({ rankdir: 'LR', nodesep: 34, ranksep: 140, marginx: 24, marginy: 24 })
-  g.setDefaultEdgeLabel(() => ({}))
+const SEVERITY = { Critical: 0, High: 1, Medium: 2, Low: 3 }
 
-  nodes.forEach((n) => g.setNode(n.id, sizeOf(n)))
-  edges.forEach((e) => g.setEdge(e.source, e.target))
-  dagre.layout(g)
+// Three fixed tiers (identities -> groups -> resources) keep the map readable
+// even with many disconnected components, where force-directed layouts smear.
+export function layoutGraph(nodes) {
+  const tiers = { identity: [], group: [], resource: [] }
+  nodes.forEach((node) => tiers[(node.type ?? 'group').toLowerCase()]?.push(node))
 
-  return nodes.map((node) => {
-    const pos = g.node(node.id)
-    const size = sizeOf(node)
-    return { ...node, position: { x: pos.x - size.width / 2, y: pos.y - size.height / 2 } }
-  })
+  const midY = (Math.max(tiers.identity.length, tiers.group.length, tiers.resource.length, 1) * SIZE.group.row) / 2
+  const positioned = []
+
+  for (const [type, list] of Object.entries(tiers)) {
+    const { width, row } = SIZE[type]
+    const tierHeight = (list.length * row) / 2
+    const startY = midY - tierHeight
+    const sorted = [...list].sort((a, b) => rank(a) - rank(b) || nameOf(a).localeCompare(nameOf(b)))
+    sorted.forEach((node, i) => {
+      positioned.push({
+        ...node,
+        position: { x: COLUMN_X[type] + (width === 224 ? 16 : 0), y: startY + i * row },
+      })
+    })
+  }
+  return positioned
 }
+
+const nameOf = (node) => node.props.name ?? node.props.email ?? node.id
+const rank = (node) =>
+  node.type === 'resource' ? (SEVERITY[node.props.sensitivity] ?? 4) : 0

@@ -73,6 +73,10 @@ export default function GraphCanvas({ data, highlight, cascadeIds, selectedId, o
         fitViewOptions={{ padding: 0.15 }}
         minZoom={0.15}
         deleteKeyCode={null}
+        onInit={(instance) => {
+          // fitView fires before nodes are measured, so re-fit once layout settles
+          setTimeout(() => instance.fitView({ padding: 0.15, duration: 300 }), 350)
+        }}
       >
         <Background variant={BackgroundVariant.Dots} gap={22} size={1.2} color="#1e293b" />
         <Controls showInteractive={false} className="!shadow-none" />

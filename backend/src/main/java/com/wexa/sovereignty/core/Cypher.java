@@ -32,8 +32,9 @@ public final class Cypher {
             ORDER BY %s, pathsAtRisk DESC
             """.formatted(SEVERITY);
 
-    /** Full picture for the canvas. */
-    public static final String ALL_NODES = "MATCH (n) RETURN n.id AS id, labels(n)[0] AS type, properties(n) AS props";
+    /** Full picture for the canvas. Types are lowercased for stable API casing. */
+    public static final String ALL_NODES =
+            "MATCH (n) RETURN n.id AS id, toLower(labels(n)[0]) AS type, properties(n) AS props";
     public static final String ALL_EDGES = """
             MATCH (a)-[r]->(b)
             RETURN a.id AS source, b.id AS target, type(r) AS type, properties(r) AS props
@@ -41,7 +42,7 @@ public final class Cypher {
 
     /** Drawer detail: the node itself plus one hop in each direction. */
     public static final String NODE_DETAIL =
-            "MATCH (n) WHERE n.id = $id RETURN n.id AS id, labels(n)[0] AS type, properties(n) AS props";
+            "MATCH (n) WHERE n.id = $id RETURN n.id AS id, toLower(labels(n)[0]) AS type, properties(n) AS props";
 
     public static final String NODE_UPSTREAM = """
             MATCH (src)-[r]->(n) WHERE n.id = $id
