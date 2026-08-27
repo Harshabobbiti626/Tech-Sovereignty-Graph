@@ -1,0 +1,15 @@
+# Netlify config for the frontend — no dashboard settings needed beyond
+# VITE_API_BASE_URL (set it to the Render API URL before the first deploy).
+[build]
+  base = "frontend"
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "20"
+
+# single-page app fallback — harmless without client-side routes, saves pain if one lands later
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
