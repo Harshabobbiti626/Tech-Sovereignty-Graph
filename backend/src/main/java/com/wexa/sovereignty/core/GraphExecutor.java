@@ -3,7 +3,6 @@ package com.wexa.sovereignty.core;
 import org.neo4j.driver.Driver;
 import org.neo4j.driver.Record;
 import org.neo4j.driver.Session;
-import org.neo4j.driver.SessionConfig;
 import org.neo4j.driver.exceptions.AuthenticationException;
 import org.neo4j.driver.exceptions.ClientException;
 import org.neo4j.driver.exceptions.ServiceUnavailableException;
@@ -12,7 +11,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.OptionalLong;
@@ -30,9 +28,6 @@ public class GraphExecutor {
 
     private final Driver driver;
     private final CircuitBreaker breaker;
-    private final SessionConfig sessionConfig = SessionConfig.builder()
-            .withConnectionAcquisitionTimeout(Duration.ofSeconds(10))
-            .build();
 
     public GraphExecutor(Driver driver, CircuitBreaker breaker) {
         this.driver = driver;
@@ -46,7 +41,7 @@ public class GraphExecutor {
     /** Direct liveness probe that ignores the breaker — health should report reality. */
     public OptionalLong probe() {
         long start = System.nanoTime();
-        try (Session session = driver.session(sessionConfig)) {
+        try (Session session = driver.session()) {
             session.executeRead(tx -> tx.run(Cypher.PING).single());
             return OptionalLong.of((System.nanoTime() - start) / 1_000_000);
         } catch (Exception e) {
@@ -61,7 +56,7 @@ public class GraphExecutor {
     private <T> T execute(Function<Session, T> work) {
         if (breaker.isOpen()) {
             throw unavailable(null);
-        }        try (Session session = driver.session(sessionConfig)) {
+        }        try (Session session = driver.session()) {
             T result = work.apply(session);
             breaker.recordSuccess();
             return result;

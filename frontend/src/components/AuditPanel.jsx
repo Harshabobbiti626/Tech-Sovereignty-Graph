@@ -21,7 +21,8 @@ function PathCard({ path, active, onClick }) {
           <span key={i} className="flex items-center gap-1">
             {i > 0 && (
               <span className="text-[9px] text-slate-500">
-                —{step.relType}→
+                —{step.relType}
+                {step.level ? `·${step.level}` : ''}→
               </span>
             )}
             <span

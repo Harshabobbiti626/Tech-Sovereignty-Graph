@@ -10,6 +10,9 @@ public final class Cypher {
     private Cypher() {
     }
 
+    /** Most severe first: Critical -> High -> Medium -> Low, then shortest path. */
+    static final String SEVERITY = "CASE r.sensitivity WHEN 'Critical' THEN 0 WHEN 'High' THEN 1 WHEN 'Medium' THEN 2 ELSE 3 END";
+
     /** Query A — every access path a person has to a resource, direct or via nested groups. */
     public static final String ACCESS_PATHS = """
             MATCH path = (u:Identity {email: $email})-[:MEMBER_OF|INHERITS*1..5]->(g)-[:ACCESS]->(r:Resource)
@@ -17,8 +20,8 @@ public final class Cypher {
             RETURN path,
                    u.email AS email, u.role AS role, u.status AS status,
                    r.id AS resourceId, r.name AS resourceName, r.sensitivity AS sensitivity
-            ORDER BY sensitivity DESC, length(path)
-            """;
+            ORDER BY %s, length(path)
+            """.formatted(SEVERITY);
 
     /** Query B — what goes dark if this group's credentials were revoked (the SQL-awkward one). */
     public static final String BLAST_RADIUS = """
@@ -26,8 +29,8 @@ public final class Cypher {
             MATCH (target)-[:INHERITS*0..3]->(downstream)-[:ACCESS]->(r:Resource)
             RETURN r.id AS resourceId, r.name AS resource, r.sensitivity AS sensitivity,
                    count(DISTINCT downstream) AS pathsAtRisk
-            ORDER BY pathsAtRisk DESC, sensitivity DESC
-            """;
+            ORDER BY %s, pathsAtRisk DESC
+            """.formatted(SEVERITY);
 
     /** Full picture for the canvas. */
     public static final String ALL_NODES = "MATCH (n) RETURN n.id AS id, labels(n)[0] AS type, properties(n) AS props";

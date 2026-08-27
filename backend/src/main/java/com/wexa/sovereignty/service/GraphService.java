@@ -126,10 +126,10 @@ public class GraphService {
         List<PathStep> steps = new ArrayList<>();
         var nodes = path.nodes().iterator();
         Node start = nodes.next();
-        steps.add(new PathStep(null, nodeId(start), label(start), displayName(start)));
+        steps.add(new PathStep(null, null, nodeId(start), label(start), displayName(start)));
         for (Relationship rel : path.relationships()) {
             Node node = nodes.next();
-            steps.add(new PathStep(rel.type(), nodeId(node), label(node), displayName(node)));
+            steps.add(new PathStep(rel.type(), levelOf(rel), nodeId(node), label(node), displayName(node)));
         }
 
         String sensitivity = row.get("sensitivity").asString();
@@ -154,6 +154,11 @@ public class GraphService {
         if (found.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Unknown group: " + groupName);
         }
+    }
+
+    private static String levelOf(Relationship rel) {
+        Value level = rel.get("level");
+        return level.isNull() ? null : level.asString();
     }
 
     private static String nodeId(Node node) {

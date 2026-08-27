@@ -12,7 +12,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-import java.time.Duration;
+import java.util.concurrent.TimeUnit;
 
 @Configuration
 public class Neo4jConfig {
@@ -31,7 +31,8 @@ public class Neo4jConfig {
         // short timeouts so a sleeping instance fails fast into the circuit
         // breaker instead of holding requests for the 60s driver default
         Config config = Config.builder()
-                .withConnectionTimeout(Duration.ofSeconds(10))
+                .withConnectionTimeout(10, TimeUnit.SECONDS)
+                .withConnectionAcquisitionTimeout(10, TimeUnit.SECONDS)
                 .withMaxConnectionPoolSize(10)
                 .build();
         Driver driver = GraphDatabase.driver(uri, AuthTokens.basic(user, password), config);
