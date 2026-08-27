@@ -7,10 +7,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * Minimal circuit breaker for database outages. After the failure threshold is
- * hit the breaker opens and every call fails fast until the cooldown expires;
- * the first call afterwards acts as a probe, and a failed probe reopens the
- * breaker immediately.
+ * Fails fast after N consecutive database failures; one probe call after the
+ * cooldown decides whether to close again.
  */
 @Component
 public class CircuitBreaker {

@@ -2,18 +2,20 @@
 .env
 **/.env
 
+# local only
+Guide.pdf
+.zcode/
+.vscode/
+
 # java build
 backend/target/
+hs_err_pid*.log
 
 # node
 frontend/node_modules/
 frontend/dist/
 
-# local tooling used to bootstrap the maven wrapper
-.tools/
-
 # misc
 .idea/
-.vscode/
 *.iml
 .DS_Store

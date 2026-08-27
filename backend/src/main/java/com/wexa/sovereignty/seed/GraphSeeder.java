@@ -11,12 +11,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Loads the demo scenario. Everything is MERGE-based, so re-running refreshes
- * properties in place instead of duplicating data. Constraints and indexes are
- * created before any data is written — on a 256 MB c0 instance lookups should
- * hit those, not scans.
- *
- * Kept free of Spring CLI concerns so the Testcontainers suite can call it directly.
+ * Loads the demo scenario. MERGE-based, so re-runs refresh instead of duplicating.
+ * Kept free of Spring CLI concerns so tests can call it directly.
  */
 @Component
 public class GraphSeeder {
@@ -164,10 +160,8 @@ public class GraphSeeder {
     );
 
     /**
-     * Inheritance chain worth remembering:
-     * Legacy_External_Contractors -> Engineering_Read_Only -> Global_Database_Admin.
-     * That second hop was never supposed to exist — it hands every legacy
-     * contractor database-admin power through two nested INHERITS edges.
+     * The toxic chain: Legacy_External_Contractors -> Engineering_Read_Only ->
+     * Global_Database_Admin. That second hop was never supposed to exist.
      */
     private static final List<Link> INHERITS = List.of(
             new Link("gr_devops", "gr_eng"),

@@ -1,9 +1,6 @@
 import { useEffect, useState } from 'react'
 
-/**
- * Branded outage screen. The API's 503 body carries the breaker's retry window,
- * so the countdown mirrors what the backend is actually doing.
- */
+// the countdown mirrors the backend breaker's retry window from the 503 body
 export default function ErrorScreen({ error, onRetry }) {
   const totalSeconds = Math.ceil((error?.retryInMs ?? 15000) / 1000)
   const [seconds, setSeconds] = useState(totalSeconds)

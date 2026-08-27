@@ -24,10 +24,7 @@ public class ApiExceptionHandler {
         this.executor = executor;
     }
 
-    /**
-     * Turn driver/lookup failures into a predictable JSON body. 503 responses
-     * carry the breaker's retry window so the UI can run a real countdown.
-     */
+    /** 503s carry the breaker's retry window so the UI can run a real countdown. */
     @ExceptionHandler(ResponseStatusException.class)
     public ResponseEntity<Map<String, Object>> handled(ResponseStatusException ex) {
         Map<String, Object> body = new LinkedHashMap<>();

@@ -8,8 +8,7 @@ const COLUMN_X = { identity: 0, group: 400, resource: 800 }
 
 const SEVERITY = { Critical: 0, High: 1, Medium: 2, Low: 3 }
 
-// Three fixed tiers (identities -> groups -> resources) keep the map readable
-// even with many disconnected components, where force-directed layouts smear.
+// fixed tiers (identities -> groups -> resources); stable even with disconnected nodes
 export function layoutGraph(nodes) {
   const tiers = { identity: [], group: [], resource: [] }
   nodes.forEach((node) => tiers[(node.type ?? 'group').toLowerCase()]?.push(node))

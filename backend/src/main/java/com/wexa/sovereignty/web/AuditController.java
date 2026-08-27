@@ -23,10 +23,7 @@ public class AuditController {
         this.service = service;
     }
 
-    /**
-     * Query A — how does this identity reach (a) resource(s)?
-     * The pattern admits both email addresses and agent slugs like production_ci_cd_bot.
-     */
+    /** Query A — how does this identity reach (a) resource(s)? */
     @GetMapping("/audit/{email}")
     public AuditResult audit(@PathVariable @NotBlank @Size(max = 120)
                              @Pattern(regexp = "^[\\w.@+-]+$",

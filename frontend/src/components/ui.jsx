@@ -35,7 +35,6 @@ export function NodeHandles() {
   )
 }
 
-/* feather-style stroke icons keep the bundle lean (no icon library) */
 const iconProps = {
   viewBox: '0 0 24 24',
   fill: 'none',

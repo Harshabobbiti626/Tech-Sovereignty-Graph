@@ -20,16 +20,14 @@ public class Neo4jConfig {
     private static final Logger log = LoggerFactory.getLogger(Neo4jConfig.class);
 
     /**
-     * The driver is created even when CognoDB is asleep: the driver reconnects
-     * lazily, so a cold instance degrades to a 503 response instead of taking
-     * the whole API down at boot time.
+     * Created even when CognoDB is asleep — the driver reconnects lazily, so a
+     * cold instance means 503s, not a dead API.
      */
     @Bean
     public Driver driver(@Value("${cognodb.uri}") String uri,
                          @Value("${cognodb.user}") String user,
                          @Value("${cognodb.password}") String password) {
-        // short timeouts so a sleeping instance fails fast into the circuit
-        // breaker instead of holding requests for the 60s driver default
+        // fail fast into the circuit breaker instead of hanging on the 60s default
         Config config = Config.builder()
                 .withConnectionTimeout(10, TimeUnit.SECONDS)
                 .withConnectionAcquisitionTimeout(10, TimeUnit.SECONDS)

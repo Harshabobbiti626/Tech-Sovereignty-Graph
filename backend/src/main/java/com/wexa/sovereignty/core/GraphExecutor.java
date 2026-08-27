@@ -17,9 +17,8 @@ import java.util.OptionalLong;
 import java.util.function.Function;
 
 /**
- * The single place where Cypher meets the database. Every call goes through
- * the circuit breaker and every failure is translated into a clean HTTP
- * response, so controllers never see driver exceptions.
+ * Single choke point between Cypher and the database: circuit breaker in,
+ * clean HTTP failures out.
  */
 @Component
 public class GraphExecutor {

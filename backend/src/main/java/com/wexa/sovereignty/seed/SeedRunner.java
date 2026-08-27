@@ -10,11 +10,8 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 /**
- * CLI entry point for seeding. Run with:
- *
+ * Seeds the database, then exits. Run with:
  *   ./mvnw spring-boot:run -Dspring-boot.run.profiles=seed
- *
- * The actual loading lives in {@link GraphSeeder} so tests can reuse it.
  */
 @Component
 @Profile("seed")

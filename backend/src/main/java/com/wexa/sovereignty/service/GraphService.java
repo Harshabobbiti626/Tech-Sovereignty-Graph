@@ -69,8 +69,8 @@ public class GraphService {
     }
 
     /**
-     * Query A. An identity that exists but reaches nothing yields an empty path
-     * list (the UI shows its "all clear" state); an unknown email is a 404.
+     * Query A. Existing identity + no paths = empty list (all-clear in the UI);
+     * unknown identity = 404.
      */
     public AuditResult audit(String email, String resource) {
         IdentitySummary identity = executor.read(Cypher.IDENTITY_BY_EMAIL, Map.of("email", email), row ->

@@ -1,9 +1,7 @@
 package com.wexa.sovereignty.core;
 
 /**
- * Every statement the API runs. Queries are fixed strings and all user input
- * enters through named parameters, so nothing can ever be concatenated into a
- * query here.
+ * Every statement the API runs. Fixed strings + named parameters — no concatenation, ever.
  */
 public final class Cypher {
 
