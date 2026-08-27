@@ -1,13 +1,13 @@
-# Render blueprint — provisions the API as a free-tier Java web service.
+# Render blueprint — provisions the API as a free-tier Docker web service.
 # Set COGNODB_URI / COGNODB_USER / COGNODB_PASSWORD in the Render dashboard,
 # and point CORS_ORIGINS at the deployed frontend origin.
 services:
   - type: web
     name: tech-sovereignty-api
-    runtime: java
+    runtime: docker
     plan: free
-    buildCommand: ./mvnw clean package -DskipTests
-    startCommand: java -jar target/sovereignty-1.0.0.jar
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
     healthCheckPath: /api/health
     envVars:
       - key: COGNODB_URI
@@ -18,5 +18,3 @@ services:
         sync: false
       - key: CORS_ORIGINS
         sync: false
-      - key: JAVA_VERSION
-        value: 17
