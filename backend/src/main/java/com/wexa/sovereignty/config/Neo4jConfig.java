@@ -1,0 +1,59 @@
+package com.wexa.sovereignty.config;
+
+import org.neo4j.driver.AuthTokens;
+import org.neo4j.driver.Config;
+import org.neo4j.driver.Driver;
+import org.neo4j.driver.GraphDatabase;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+import java.time.Duration;
+
+@Configuration
+public class Neo4jConfig {
+
+    private static final Logger log = LoggerFactory.getLogger(Neo4jConfig.class);
+
+    /**
+     * The driver is created even when CognoDB is asleep: the driver reconnects
+     * lazily, so a cold instance degrades to a 503 response instead of taking
+     * the whole API down at boot time.
+     */
+    @Bean
+    public Driver driver(@Value("${cognodb.uri}") String uri,
+                         @Value("${cognodb.user}") String user,
+                         @Value("${cognodb.password}") String password) {
+        // short timeouts so a sleeping instance fails fast into the circuit
+        // breaker instead of holding requests for the 60s driver default
+        Config config = Config.builder()
+                .withConnectionTimeout(Duration.ofSeconds(10))
+                .withMaxConnectionPoolSize(10)
+                .build();
+        Driver driver = GraphDatabase.driver(uri, AuthTokens.basic(user, password), config);
+        try {
+            driver.verifyConnectivity();
+            log.info("Connected to CognoDB at {}", uri);
+        } catch (Exception e) {
+            log.warn("CognoDB unreachable at startup ({}). The API will keep serving and retry on demand.",
+                    e.getMessage());
+        }
+        return driver;
+    }
+
+    @Bean
+    public WebMvcConfigurer corsConfigurer(@Value("${app.cors.allowed-origins}") String allowedOrigins) {
+        return new WebMvcConfigurer() {
+            @Override
+            public void addCorsMappings(CorsRegistry registry) {
+                registry.addMapping("/api/**")
+                        .allowedOrigins(allowedOrigins.split(","))
+                        .allowedMethods("GET");
+            }
+        };
+    }
+}

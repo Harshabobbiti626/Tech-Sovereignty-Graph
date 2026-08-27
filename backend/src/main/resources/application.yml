@@ -1,0 +1,20 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: tech-sovereignty
+
+cognodb:
+  # defaults exist so the API still boots (and reports "unreachable") without a configured instance
+  uri: ${COGNODB_URI:bolt+s://not-configured.databases.cognodb.cloud}
+  user: ${COGNODB_USER:cognodb}
+  password: ${COGNODB_PASSWORD:}
+
+app:
+  cors:
+    allowed-origins: ${CORS_ORIGINS:http://localhost:5173,http://127.0.0.1:5173}
+
+breaker:
+  failure-threshold: 3
+  cooldown-millis: 15000

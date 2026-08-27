@@ -1,0 +1,19 @@
+# secrets
+.env
+**/.env
+
+# java build
+backend/target/
+
+# node
+frontend/node_modules/
+frontend/dist/
+
+# local tooling used to bootstrap the maven wrapper
+.tools/
+
+# misc
+.idea/
+.vscode/
+*.iml
+.DS_Store
