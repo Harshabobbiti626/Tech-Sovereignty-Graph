@@ -2,7 +2,7 @@
 
 **Shadow IT & Governance Tracker** — an enterprise graph application that maps *who* can reach *what*, through *which* groups, and exposes the paths nobody remembers approving.
 
-> **Live demo:** _coming soon — the deployed URL will be posted here_
+> **Live demo:** [techsovereigntyclient.netlify.app](https://techsovereigntyclient.netlify.app) · API health: [tech-sovereignty-api.onrender.com/api/health](https://tech-sovereignty-api.onrender.com/api/health)
 > (Deploy your own in minutes: see [Running with Docker](#running-with-docker))
 
 ---
@@ -184,8 +184,8 @@ The frontend mirrors it: `api/` (fetch client), `hooks/` (data + health polling)
 
 ## Deployment
 
-- **Backend → Render**: new Web Service from the repo (blueprint in [`render.yaml`](render.yaml)) — build `./mvnw clean package -DskipTests`, start `java -jar target/sovereignty-1.0.0.jar`, set `COGNODB_*` env vars.
-- **Frontend → Vercel/Netlify**: static build of `frontend/` (`npm run build`), `VITE_API_BASE_URL` pointed at the API URL, then update the live-demo link at the top of this file.
+- **Backend → Render**: apply the blueprint in [`render.yaml`](render.yaml) (Docker runtime, builds `backend/Dockerfile`) — set the `COGNODB_*` env vars and point `CORS_ORIGINS` at the frontend origin.
+- **Frontend → Netlify**: import the repo — [`netlify.toml`](netlify.toml) already sets base/build/publish; add `VITE_API_BASE_URL` = the Render API URL **before the first deploy** (Vite bakes it in at build time), then update the live-demo link at the top of this file.
 
 ## Project structure
 
