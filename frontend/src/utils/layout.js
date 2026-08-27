@@ -11,7 +11,11 @@ const SEVERITY = { Critical: 0, High: 1, Medium: 2, Low: 3 }
 // fixed tiers (identities -> groups -> resources); stable even with disconnected nodes
 export function layoutGraph(nodes) {
   const tiers = { identity: [], group: [], resource: [] }
-  nodes.forEach((node) => tiers[(node.type ?? 'group').toLowerCase()]?.push(node))
+  nodes.forEach((node) => {
+    // unknown labels land in the group tier rather than vanishing
+    const tier = tiers[(node.type ?? 'group').toLowerCase()] ?? tiers.group
+    tier.push(node)
+  })
 
   const midY = (Math.max(tiers.identity.length, tiers.group.length, tiers.resource.length, 1) * SIZE.group.row) / 2
   const positioned = []

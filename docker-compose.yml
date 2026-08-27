@@ -1,0 +1,22 @@
+# One command to run the whole stack against your CognoDB instance:
+#   cp .env.example .env   (fill in the values)
+#   docker compose up --build
+# UI:    http://localhost:5173
+# API:   http://localhost:8080  (docs at /swagger-ui.html)
+services:
+  backend:
+    build: ./backend
+    ports:
+      - "8080:8080"
+    environment:
+      COGNODB_URI: ${COGNODB_URI}
+      COGNODB_USER: ${COGNODB_USER}
+      COGNODB_PASSWORD: ${COGNODB_PASSWORD}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:5173}
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
