@@ -5,7 +5,7 @@ export default function GroupNode({ data }) {
 
   return (
     <div
-      className={`w-56 rounded-lg bg-slate-900/95 px-3 py-2 shadow-md shadow-black/30 ring-1 transition-opacity ${
+      className={`w-56 rounded-lg bg-slate-900 px-3 py-2 shadow-md shadow-black/30 ring-1 transition-opacity ${
         selected ? 'ring-2 ring-indigo-400' : 'ring-slate-700/80'
       } ${dim ? 'opacity-15' : ''}`}
     >
