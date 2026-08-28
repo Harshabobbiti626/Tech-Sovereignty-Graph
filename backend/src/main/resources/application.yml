@@ -5,6 +5,10 @@ server:
 spring:
   application:
     name: tech-sovereignty
+  main:
+    # deployed instances boot lazily to shorten free-tier cold starts;
+    # local dev and tests stay eager (default false)
+    lazy-init: ${LAZY_INIT:false}
   cache:
     type: caffeine
     cache-names: graph, stats

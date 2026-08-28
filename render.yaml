@@ -18,3 +18,9 @@ services:
         sync: false
       - key: CORS_ORIGINS
         sync: false
+      # cold-start hardening: lazy beans + C1-only JIT cut wake-up roughly in half
+      # (overrides the Dockerfile's JAVA_TOOL_OPTIONS with the full set)
+      - key: LAZY_INIT
+        value: "true"
+      - key: JAVA_TOOL_OPTIONS
+        value: -XX:MaxRAMPercentage=75.0 -XX:TieredStopAtLevel=1 -XX:+ExitOnOutOfMemoryError
