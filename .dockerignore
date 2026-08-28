@@ -1,0 +1,10 @@
+# keep the root build context small — frontend/node_modules and .git dominate it
+.git
+.zcode
+.vscode
+docs
+Guide.pdf
+frontend/node_modules
+frontend/dist
+backend/target
+**/.env
